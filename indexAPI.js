@@ -1,14 +1,26 @@
+
 /***
  * CONEXIÓN A API
  */
+import { Tablero } from './modelo.js';
 
-async function guardarPartida(nombreJugador, tableroJugador, tableroIA) {
+const API_URL = 'http://localhost:3000';
+
+export async function guardarPartida(datosPartida) {
+    if (!datosPartida || !datosPartida.tableroJugador || !datosPartida.tableroIA) {
+        throw new Error("Los tableros no están inicializados");
+    }
+
     const partida = {
-//DEBES DEFINIR AQUí LO QUE QUIERAS QUE TENGAS QUE GUARDAR
+        id: Date.now().toString(),
+        jugador: datosPartida.jugador,
+        tableroJugador: datosPartida.tableroJugador.toJSON(),
+        tableroIA: datosPartida.tableroIA.toJSON(),
+        fecha: new Date().toISOString()
     };
 
     try {
-        const response = await fetch("http://localhost:3000/partidas", {
+        const response = await fetch(`${API_URL}/partidas`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -20,37 +32,46 @@ async function guardarPartida(nombreJugador, tableroJugador, tableroIA) {
 
         const data = await response.json();
         console.log("Partida guardada con éxito:", data);
-        return data.id; // ID de la partida
+        return data.id;
     } catch (err) {
-        console.error("Error:", err);
+        console.error("Error al guardar:", err);
+        throw err;
     }
 }
 
-
-async function cargarPartida(idPartida) {
+export async function cargarPartida(idPartida) {
     try {
-        const response = await fetch(`http://localhost:3000/partidas/${idPartida}`);
+        const response = await fetch(`${API_URL}/partidas/${idPartida}`);
         if (!response.ok) throw new Error("No se encontró la partida");
 
         const data = await response.json();
         console.log("Partida cargada:", data);
         return data;
     } catch (err) {
-        console.error("Error:", err);
+        console.error("Error al cargar:", err);
+        throw err;
     }
 }
 
-document.getElementById("btnGuardar").addEventListener("click", () => {
-    const nombreJugador = prompt("Introduce tu nombre:");
-    //DEFINE AQUI LO QUE QUIERAS, PUEDES AÑADIR MAS PARAMETROS
-    guardarPartida(nombreJugador, tableroJugador, tableroIA);
-});
-
-document.getElementById("btnCargar").addEventListener("click", async () => {
-    const id = prompt("Introduce el ID de la partida:");
-    const partida = await cargarPartida(id);
-    // Llamamos a la función que recupera los tableros 
+export function recuperaTablerosApi(partida) {
+    if (!partida) throw new Error("No hay datos de partida");
     
-    // PROGRAMAR
-    recuperaTablerosApi(partida);
-});
+    return {
+        tableroJugador: Tablero.fromJSON(partida.tableroJugador),
+        tableroIA: Tablero.fromJSON(partida.tableroIA),
+        nombreJugador: partida.jugador
+    };
+}
+
+export async function listarPartidas() {
+    try {
+        const response = await fetch(`${API_URL}/partidas`);
+        if (!response.ok) throw new Error("Error al obtener las partidas");
+
+        const partidas = await response.json();
+        return partidas;
+    } catch (err) {
+        console.error("Error al listar partidas:", err);
+        throw err;
+    }
+}
