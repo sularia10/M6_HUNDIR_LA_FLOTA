@@ -1,5 +1,3 @@
-// modelo.js
-
 export class Barco {
   constructor(nombre, tamaño) {
     this.nombre = nombre;

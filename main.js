@@ -1,5 +1,3 @@
-// main.js
-
 import { Tablero, Barco } from "./modelo.js";
 import { barcosJSON } from "./barcos.js";
 import { mostrarTableroInteractivo, mostrarBarcosParaSeleccion, mostrarMensaje, mostrarFormularioDisparo } from "./vista.js";
@@ -123,7 +121,6 @@ botonJugar.onclick = () => {
 
 actualizarTableros();
 // Declaración única al inicio
-// Declaración única al inicio del archivo (ya la tienes)
 let horizontal = true;
 
 // Listener para cambiar orientación con H o V
